@@ -19,6 +19,7 @@ public class Mudboulder extends Enemy {
     protected int damage;
     protected boolean flinching;
     protected int flinchtimer;
+    public int direction,interval,intervalmax;
 
     public Rectangle bottom,breakleft,left,right,breakright,top,full;
     public Sprite sprite;
@@ -26,8 +27,8 @@ public class Mudboulder extends Enemy {
     public Playerstate playerstate;
     public double velocityX,velocityY;
 
-public Mudboulder (float x, float y){
-    playerstate=AIR;
+public Mudboulder (float x, float y,int i){
+    playerstate=AIR;direction=0;
     velocityX=10;velocityY=-3;
     full=new Rectangle(0,0,110,109);
     bottom=new Rectangle(0,0,110,22);
@@ -36,7 +37,7 @@ public Mudboulder (float x, float y){
     top=new Rectangle(8,101,94,8);
     breakleft=new Rectangle(0,0,8,8);
     breakright=new Rectangle(102,0,8,8);
-
+    interval=intervalmax=Math.abs(i);
     texture=new Texture(Gdx.files.internal("sprite/mudboulder.png"));
     sprite=new Sprite(texture,0,0,110,109);
     setPosition(x,y);
@@ -72,10 +73,7 @@ public Mudboulder (float x, float y){
             setPosition(bottom.x,y);
         }
         if(type==HIT_LEFT){
-
             setPosition(x+10,bottom.y);
-
-
         }
         if(type==HIT_RIGHT){
 
@@ -90,6 +88,21 @@ public Mudboulder (float x, float y){
     @Override
     public void update(double delta) {
         velocityY-=30*delta;bottom.y+=velocityY;
+       /* switch(direction) {
+            case 0:
+                if(interval>=velocityX * 2 * delta)
+                {setPosition(bottom.x - (velocityX * 2 * delta), bottom.y); System.out.println(interval);}
+                else {setPosition(bottom.x - interval, bottom.y);interval=intervalmax;direction=1;
+                  }
+
+                break;
+            case 1:
+                if(interval>=velocityX * 2 * delta)
+                {setPosition(bottom.x + (velocityX * 2 * delta), bottom.y);}
+                else {setPosition(bottom.x+interval, bottom.y);interval=intervalmax;direction=1;}
+                System.out.println("roll right");
+                break;
+        }*/
         sprite.setPosition(bottom.x,bottom.y);
     }
 
@@ -103,13 +116,13 @@ public Mudboulder (float x, float y){
         full.x=(float)x;
         full.y=(float)y;
 
-        breakleft.x=bottom.x=(float)x;
-        breakright.y=breakleft.y=bottom.y=(float)y;
+      bottom.x=(float)x;
+       bottom.y=(float)y;
 
         left.x=(float)x;
         left.y=(float)y+8;
 
-        breakright.x=right.x=(float)x+102;
+       right.x=(float)x+102;
         right.y=(float)y+8;
 
         top.x=(float)x+8;
@@ -125,12 +138,12 @@ public Mudboulder (float x, float y){
 
     @Override
     public void moveLeft(float delta) {
-
+        setPosition(bottom.x - (velocityX * 2 * delta), bottom.y);
     }
 
     @Override
     public void moveRight(float delta) {
-
+        setPosition(bottom.x +(velocityX * 2 * delta), bottom.y);
     }
 
     @Override

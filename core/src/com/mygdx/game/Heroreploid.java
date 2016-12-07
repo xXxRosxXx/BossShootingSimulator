@@ -116,13 +116,21 @@ public class Heroreploid extends GameObject {
     public void dash(float delta){
 
         isDashing=true;
-        if(direction==0){setPosition(bottom.x-(velocityX*4*delta),bottom.y);}
-        else{setPosition(bottom.x+(velocityX*4*delta),bottom.y);}
+        if(direction==0){setPosition(bottom.x-(velocityX*4*delta),bottom.y);delay_sec(0.033);}
+        else{setPosition(bottom.x+(velocityX*4*delta),bottom.y);delay_sec(0.033);}
 isDashing=false;
 
     }
     public void draw(SpriteBatch batch){sprite.draw(batch);}
     public Rectangle getHitBox(){
         return full;
+    }
+    public void delay_sec(double s)
+    {
+        long s2=(int)(1000*s);
+        try {Thread.sleep(s2);}
+        catch (InterruptedException e){
+            e.printStackTrace();
+        }
     }
 }

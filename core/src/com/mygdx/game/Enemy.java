@@ -13,6 +13,7 @@ public abstract class Enemy{
     protected int damage;
 protected boolean flinching;
 protected int flinchtimer;
+    public int direction,interval,intervalmax;
 
     public abstract Playerstate hits(Rectangle r);
     public abstract void action(Playerstate type,double x,double y);
@@ -38,7 +39,6 @@ flinching=true;
 
 }
 }
-
 
 
 

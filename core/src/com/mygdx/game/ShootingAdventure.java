@@ -21,12 +21,22 @@ import java.util.logging.FileHandler;
 import static com.mygdx.game.Playerstate.*;
 
 public class ShootingAdventure extends ApplicationAdapter {
+    //button goes here
+    private Rectangle clickStart;
+   private Texture textureStart;
+    private Sprite spriteStart;
+
+    //
+
+
     private SpriteBatch batch;
     private Texture texture;
     private Sprite sprite;
+    boolean changelevel=false;
+    public boolean duplicatestopper;
     private OrthographicCamera camera;
     private Heroreploid player1;
-    private int gamestate=2;
+    private int gamestate=1;
     public String level="testlevel";
     public ArrayList<GameObject> list = new ArrayList<GameObject>();
     public ArrayList<Enemy> enemies = new ArrayList<Enemy>();
@@ -44,8 +54,10 @@ public class ShootingAdventure extends ApplicationAdapter {
         sprite.setPosition(70, 70);
         player1 = new Heroreploid();
         player1.setPosition(300, 300);
-
-
+         clickStart=new Rectangle(0,0,158,52);
+        textureStart=new Texture(Gdx.files.internal("sprite/button_start.png"));
+       spriteStart=new Sprite(textureStart,0,0,158,52);
+        spriteStart.setPosition(350,250);
     }
     @Override
     public void render() {
@@ -69,8 +81,20 @@ camera.update();
 
 
      }
-public void mainmenu(){}
-public void maingame(){  Gdx.gl.glClearColor(1, 1, 1, 1);
+public void mainmenu(){
+    Gdx.gl.glClearColor(1, 1, 1, 1);
+    Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+    batch.setProjectionMatrix(camera.combined);
+    batch.begin();
+
+spriteStart.draw(batch);
+    batch.end();
+    camera.position.x=400;camera.position.y=240;camera.update();
+    clickStart.x=350;clickStart.y=250;
+    if(Gdx.input.isTouched()){gamestate=2;}
+}
+public void maingame() {
+    Gdx.gl.glClearColor(1, 1, 1, 1);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     batch.setProjectionMatrix(camera.combined);
     batch.begin();
@@ -78,15 +102,16 @@ public void maingame(){  Gdx.gl.glClearColor(1, 1, 1, 1);
     player1.draw(batch);
     for (GameObject t : list) {
         t.draw(batch);
-    } for (BulletPrototype bill : bulletlist) {
+    }
+    for (BulletPrototype bill : bulletlist) {
         bill.draw(batch);
     }
     for (Enemy foe : enemies) {
         foe.draw(batch);
     }
+    loadlevel(level);
     batch.end();
 
-    loadlevel(level);
     //updates
     player1.update(0.033);
     for(Enemy foe : enemies){foe.update(0.033);}
@@ -111,7 +136,7 @@ public void maingame(){  Gdx.gl.glClearColor(1, 1, 1, 1);
         bulletlist.remove(deadbulletlist.get(0));
         deadbulletlist.remove(0);
     }
-boolean changelevel=false;
+
     for (GameObject i:list) {
         switch (player1.hits(i.getHitBox())) {
             case GROUND:
@@ -218,10 +243,12 @@ boolean changelevel=false;
                     foe.action(GROUND, 0,i.getHitBox().y +i.getHitBox().height);
                     break;
                 case HIT_LEFT:
-                    foe.action(HIT_LEFT,i.getHitBox().x +i.getHitBox().width + 11, 0);
+                    if(foe.getClass()==Mudboulder.class){
+                    foe.direction=1;foe.interval=foe.intervalmax;
+                       }
                     break;
                 case HIT_RIGHT:
-                    foe.action(HIT_RIGHT,i.getHitBox().x - foe.getHitBox().width - 11, 0);
+                    if(foe.getClass()==Mudboulder.class){foe.direction=0;foe.interval=foe.intervalmax;}
                     break;
                 case HIT_CEILING:
                     foe.action(HIT_CEILING, 0,i.getHitBox().y - foe.getHitBox().height);
@@ -234,9 +261,11 @@ boolean changelevel=false;
 
 
     if(changelevel){
-        player1.setPosition(150, 300);
+        player1.setPosition(150, 300); player1.velocityY=0;
 loadlevel(level);
   Brick.level=level;
+        changelevel=false;
+
     }
 
     updateCamera();
@@ -251,7 +280,7 @@ loadlevel(level);
        player1.jump();//System.out.println(enemies.size());
     }
     if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-        for (int j = 0; j < 15; j++) {
+        for (int j = 0; j <33; j++) {
             if(!(player1.playerstate==HIT_LEFT||player1.playerstate==HIT_RIGHT)){
                 player1.dash(0.033f);}
             else{break;}
@@ -263,11 +292,14 @@ loadlevel(level);
         else{
             bulletlist.add(new Bullet(player1.bottom.x,player1.bottom.y+57,Math.toRadians(180)));}
     }
-    if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {player1.setPosition(300, 366);player1.velocityY=0;}//test recall
+    if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {gamestate=1;level="testlevel";}//test recall
 
 }
     public void loadlevel(String level){
-        list.clear();//deadbulletlist.clear();bulletlist.clear();enemies.clear();
+
+
+
+        list.clear();
         //objects
         FileHandle file=Gdx.files.internal(level);
         StringTokenizer tokens=new StringTokenizer(file.readString());
@@ -290,19 +322,23 @@ loadlevel(level);
             }else if(type.equals("leafgate")){
                 list.add(new Leafgate(Integer.parseInt(tokens.nextToken()),Integer.parseInt(tokens.nextToken())));
             }
-
-
-        }
-        //monsters
-        enemies.clear();
-        file=Gdx.files.internal(level+"_enemy");
-        tokens=new StringTokenizer(file.readString());
-        while(tokens.hasMoreTokens()) {
-            String type=tokens.nextToken();
-            if(type.equals("mudboulder")){
-                enemies.add(new Mudboulder(Integer.parseInt(tokens.nextToken()),Integer.parseInt(tokens.nextToken())));
+            if(changelevel) {
+                deadbulletlist.clear();bulletlist.clear();enemies.clear();
+            //monsters
+                enemies.clear();
+                file = Gdx.files.internal(level + "_enemy");
+                tokens = new StringTokenizer(file.readString());
+                while (tokens.hasMoreTokens()) {
+                   type = tokens.nextToken();
+                    if (type.equals("mudboulder")) {
+                        enemies.add(new Mudboulder(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken()),
+                                Integer.parseInt(tokens.nextToken())));
+                    }
+                }
             }
+
         }
+
 //////
 
     }
@@ -332,7 +368,7 @@ loadlevel(level);
 		batch.dispose();
 		texture.dispose();
 	}
-	public void delay_sec(long s)
+	public void delay_sec(int s)
     {
         try {Thread.sleep(1000*s);}
         catch (InterruptedException e){
