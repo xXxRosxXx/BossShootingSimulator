@@ -13,7 +13,7 @@ int speed;
 Texture texture;
     Sprite sprite;
 public Bullet(float x, float y, double angle){
-time=6;speed=400;
+time=4.5;speed=400;
 hitbox=new Rectangle(x,y,26,16);
     texture=new Texture(Gdx.files.internal("sprite/bullet.png"));
     sprite=new Sprite(texture,0,0,26,16);

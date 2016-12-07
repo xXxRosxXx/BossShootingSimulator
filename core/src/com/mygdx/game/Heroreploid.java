@@ -33,17 +33,16 @@ public class Heroreploid extends GameObject {
         this.setPosition(55,288);
     }
     public Playerstate hits(Rectangle r){
-        if(top.overlaps(r)){
-            return HIT_CEILING;
-        }
-        else if(right.overlaps(r)){
-            return HIT_RIGHT;}
-        else if(left.overlaps(r)){
-            return HIT_LEFT;}
-        else if(bottom.overlaps(r)){
+         if(bottom.overlaps(r)){
             playerstate=GROUND;
             return GROUND;}
-
+       if(top.overlaps(r)){
+            return HIT_CEILING;
+        }
+        if(right.overlaps(r)){
+            return HIT_RIGHT;}
+       if(left.overlaps(r)){
+            return HIT_LEFT;}
         return AIR;
     }
     public void action(Playerstate type,double x,double y){
@@ -55,21 +54,11 @@ public class Heroreploid extends GameObject {
             setPosition(bottom.x,y);
         }
         if(type==HIT_LEFT){
-
             setPosition(x+10,bottom.y);
-
-
         }
         if(type==HIT_RIGHT){
-
             setPosition(x-10,bottom.y);
-
-
         }
-
-
-
-
 
 
     }
@@ -89,11 +78,11 @@ public class Heroreploid extends GameObject {
         left.x=(float)x;
         left.y=(float)y+8;
 
-        right.x=(float)x+52;
+        right.x=(float)x+39;
         right.y=(float)y+8;
 
         top.x=(float)x+8;
-        top.y=(float)y+69;
+        top.y=(float)y+106;
         sprite.setPosition((float)x,(float)y);
     }
     public void moveLeft(float delta){

@@ -34,7 +34,11 @@ static String level="testlevel";
             texture=new Texture(Gdx.files.internal("sprite/brick_wood.png"));
             sprite=new Sprite(texture,0,0,128,128);
         }
-
+        if(level.equals("poision")){
+            hitbox=new Rectangle(x,y,128,128);
+            texture=new Texture(Gdx.files.internal("sprite/brick_poision.png"));
+            sprite=new Sprite(texture,0,0,128,136);
+        }
         setPosition(x,y);
 
 
