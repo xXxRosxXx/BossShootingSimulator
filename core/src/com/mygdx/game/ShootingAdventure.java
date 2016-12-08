@@ -91,12 +91,14 @@ spriteStart.draw(batch);
     batch.end();
     camera.position.x=400;camera.position.y=240;camera.update();
     clickStart.x=350;clickStart.y=250;
-    if(Gdx.input.isTouched()){gamestate=2;}
+    if(Gdx.input.isTouched()){gamestate=2;changelevel=true;
+   }
 }
 public void maingame() {
-    Gdx.gl.glClearColor(1, 1, 1, 1);
+    Gdx.gl.glClearColor(1,1,1,1);
     Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
     batch.setProjectionMatrix(camera.combined);
+    loadlevel(level);loadmonster(level);
     batch.begin();
 
     player1.draw(batch);
@@ -109,15 +111,14 @@ public void maingame() {
     for (Enemy foe : enemies) {
         foe.draw(batch);
     }
-    loadlevel(level);
     batch.end();
 
     //updates
-    player1.update(0.033);
-    for(Enemy foe : enemies){foe.update(0.033);}
+    player1.update(0.04);
+    for(Enemy foe : enemies){foe.update(0.04);}
 
     for (BulletPrototype bill : bulletlist) {
-        bill.update(Gdx.graphics.getDeltaTime());
+        bill.update(0.04);
         if(bill.isDead()){this.deadbulletlist.add(bill);}
         for(GameObject t : list){
             if(t.getHitBox().overlaps(bill.getHitBox())) {
@@ -127,6 +128,7 @@ public void maingame() {
         for(Enemy foe : enemies){
 
             if(foe.getHitBox().overlaps(bill.getHitBox())) {
+                if(foe.shotby(bill)){enemies.remove(foe);}
                 deadbulletlist.add(bill);
             }}
 
@@ -243,13 +245,27 @@ public void maingame() {
                     foe.action(GROUND, 0,i.getHitBox().y +i.getHitBox().height);
                     break;
                 case HIT_LEFT:
-                    if(foe.getClass()==Mudboulder.class){
+                    switch (i.hitAction(HIT_LEFT)) {
+                        case GROUND:
+                            foe.action(HIT_LEFT,i.getHitBox().x +i.getHitBox().width + 11, 0);
+                        if(foe.getClass()==Mudboulder.class){
                     foe.direction=1;foe.interval=foe.intervalmax;
                        }
+                }
                     break;
                 case HIT_RIGHT:
-                    if(foe.getClass()==Mudboulder.class){foe.direction=0;foe.interval=foe.intervalmax;}
-                    break;
+                    switch (i.hitAction(HIT_RIGHT)) {
+                        case GROUND:
+                           foe.action(HIT_RIGHT,i.getHitBox().x - player1.getHitBox().width - 11, 0);
+                        if (foe.getClass() == Mudboulder.class) {
+                            foe.direction = 0;
+                            foe.interval = foe.intervalmax;                        }
+
+                }
+                        break;
+
+
+
                 case HIT_CEILING:
                     foe.action(HIT_CEILING, 0,i.getHitBox().y - foe.getHitBox().height);
                     break;
@@ -261,8 +277,8 @@ public void maingame() {
 
 
     if(changelevel){
-        player1.setPosition(150, 300); player1.velocityY=0;
-loadlevel(level);
+        player1.velocityY=0;
+loadlevel(level);loadmonster(level);
   Brick.level=level;
         changelevel=false;
 
@@ -271,10 +287,10 @@ loadlevel(level);
     updateCamera();
     //controls
     if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-        player1.moveLeft(0.033f);
+        player1.moveLeft(0.04f);
     }
     if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-        player1.moveRight(0.033f);
+        player1.moveRight(0.04f);
     }
     if (Gdx.input.isKeyJustPressed(Input.Keys.X) && player1.playerstate != AIR) {
        player1.jump();//System.out.println(enemies.size());
@@ -282,7 +298,7 @@ loadlevel(level);
     if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
         for (int j = 0; j <33; j++) {
             if(!(player1.playerstate==HIT_LEFT||player1.playerstate==HIT_RIGHT)){
-                player1.dash(0.033f);}
+                player1.dash(0.04f);}
             else{break;}
         }
     }
@@ -292,56 +308,67 @@ loadlevel(level);
         else{
             bulletlist.add(new Bullet(player1.bottom.x,player1.bottom.y+57,Math.toRadians(180)));}
     }
-    if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {gamestate=1;level="testlevel";}//test recall
+    if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {gamestate=1;level="testlevel";
+        list.clear();deadbulletlist.clear();bulletlist.clear();enemies.clear();
+        player1.setPosition(400, 300); player1.velocityY=0;
+    }//test recall
 
 }
     public void loadlevel(String level){
-
-
-
-        list.clear();
         //objects
-        FileHandle file=Gdx.files.internal(level);
-        StringTokenizer tokens=new StringTokenizer(file.readString());
+        if (changelevel) {
+            list.clear();
+            FileHandle file=Gdx.files.internal(level);
+            StringTokenizer tokens=new StringTokenizer(file.readString());
         while(tokens.hasMoreTokens()) {
-            String type=tokens.nextToken();
-            if(type.equals("brick")){
-                list.add(new Brick(Integer.parseInt(tokens.nextToken()),Integer.parseInt(tokens.nextToken())));
+            String type = tokens.nextToken();
+            if (type.equals("brick")) {
+                list.add(new Brick(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken())));
+            } else if (type.equals("spike")) {
+                list.add(new Spikes(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken())));
+            } else if (type.equals("firegate")) {
+                list.add(new Firegate(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken())));
+            } else if (type.equals("windgate")) {
+                list.add(new Windgate(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken())));
+            } else if (type.equals("poisiongate")) {
+                list.add(new Poisiongate(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken())));
+            } else if (type.equals("leafgate")) {
+                list.add(new Leafgate(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken())));
             }
-           else if(type.equals("spike")){
-                list.add(new Spikes(Integer.parseInt(tokens.nextToken()),Integer.parseInt(tokens.nextToken())));
-            }
-            else if(type.equals("firegate")){
-                list.add(new Firegate(Integer.parseInt(tokens.nextToken()),Integer.parseInt(tokens.nextToken())));
-            }
-           else if(type.equals("windgate")){
-                list.add(new Windgate(Integer.parseInt(tokens.nextToken()),Integer.parseInt(tokens.nextToken())));
-            }
-            else if(type.equals("poisiongate")){
-                list.add(new Poisiongate(Integer.parseInt(tokens.nextToken()),Integer.parseInt(tokens.nextToken())));
-            }else if(type.equals("leafgate")){
-                list.add(new Leafgate(Integer.parseInt(tokens.nextToken()),Integer.parseInt(tokens.nextToken())));
-            }
-            if(changelevel) {
-                deadbulletlist.clear();bulletlist.clear();enemies.clear();
-            //monsters
-                enemies.clear();
-                file = Gdx.files.internal(level + "_enemy");
-                tokens = new StringTokenizer(file.readString());
-                while (tokens.hasMoreTokens()) {
-                   type = tokens.nextToken();
-                    if (type.equals("mudboulder")) {
-                        enemies.add(new Mudboulder(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken()),
-                                Integer.parseInt(tokens.nextToken())));
-                    }
+        }
+        }
+    }
+
+
+    //monsters
+    public void loadmonster (String level) {
+        if (changelevel) {
+            deadbulletlist.clear();bulletlist.clear();enemies.clear();
+            FileHandle file = Gdx.files.internal(level);
+            StringTokenizer tokens = new StringTokenizer(file.readString());
+            file = Gdx.files.internal(level + "_enemy");
+            while (tokens.hasMoreTokens()) {
+                String type =  tokens.nextToken();
+                if (type.equals("mudboulder")) {
+                    enemies.add(new Mudboulder(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken()),
+                            Integer.parseInt(tokens.nextToken())));
                 }
             }
-
+            if (level.equals("fire")) {
+                player1.setPosition(328, 3016);
+            }
         }
-
-//////
-
     }
+
+
+
+
+
+
+
+
+
+
     public void nextlevel(){
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -357,9 +384,6 @@ loadlevel(level);
 
         batch.end();
 
-
-           // loadlevel(level);
-          //  Brick.level=level;
 
 }
     public void gameover(){}

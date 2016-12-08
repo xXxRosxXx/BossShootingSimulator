@@ -13,7 +13,7 @@ int speed;
 Texture texture;
     Sprite sprite;
 public Bullet(float x, float y, double angle){
-time=4.5;speed=400;
+time=3.75;speed=550;
 hitbox=new Rectangle(x,y,26,16);
     texture=new Texture(Gdx.files.internal("sprite/bullet.png"));
     sprite=new Sprite(texture,0,0,26,16);
@@ -64,7 +64,7 @@ return false;
 
     @Override
     public void draw(SpriteBatch batch) {
-        batch.draw(texture, hitbox.x, hitbox.y, 6, 4);
+        batch.draw(texture, hitbox.x, hitbox.y,26,16);
     }
 
 

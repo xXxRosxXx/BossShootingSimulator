@@ -22,6 +22,7 @@ protected int flinchtimer;
     public abstract void setPosition(double x,double y);
     public abstract void moveLeft(float delta);
     public abstract void moveRight(float delta);
+    public abstract boolean shotby(BulletPrototype b);
     public abstract void draw(SpriteBatch batch);
     public abstract void jump();
     public abstract Playerstate hitAction(Playerstate side);

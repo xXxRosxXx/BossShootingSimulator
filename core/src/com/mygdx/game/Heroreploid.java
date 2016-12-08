@@ -22,14 +22,14 @@ public class Heroreploid extends GameObject {
     public Heroreploid(){
         playerstate=AIR;direction=1;
         velocityX=100;velocityY=0;
-        full=new Rectangle(0,0,47,114);
-        bottom=new Rectangle(0,0,47,22);
-        left=new Rectangle(0,8,8,106);
-        right=new Rectangle(39,8,8,106);
-        top=new Rectangle(8,106,31,8);
+        full=new Rectangle(0,0,44,109);
+        bottom=new Rectangle(0,0,44,22);
+        left=new Rectangle(0,8,8,101);
+        right=new Rectangle(36,8,8,101);
+        top=new Rectangle(8,101,28,8);
 
         texture=new Texture(Gdx.files.internal("sprite/heroreploid.png"));
-        sprite=new Sprite(texture,0,0,47,114);
+        sprite=new Sprite(texture,0,0,44,109);
         this.setPosition(55,288);
     }
     public Playerstate hits(Rectangle r){

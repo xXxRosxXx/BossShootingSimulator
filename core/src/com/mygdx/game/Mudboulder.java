@@ -29,17 +29,15 @@ public class Mudboulder extends Enemy {
 
 public Mudboulder (float x, float y,int i){
     playerstate=AIR;direction=0;
-    velocityX=10;velocityY=-3;
-    full=new Rectangle(0,0,110,109);
+    velocityX=100;
+    full=new Rectangle(0,0,110,110);
     bottom=new Rectangle(0,0,110,22);
-    left=new Rectangle(0,8,8,101);
-    right=new Rectangle(102,8,8,106);
-    top=new Rectangle(8,101,94,8);
-    breakleft=new Rectangle(0,0,8,8);
-    breakright=new Rectangle(102,0,8,8);
+    left=new Rectangle(0,8,8,102);
+    right=new Rectangle(102,8,8,102);
+    top=new Rectangle(8,102,94,8);
     interval=intervalmax=Math.abs(i);
     texture=new Texture(Gdx.files.internal("sprite/mudboulder.png"));
-    sprite=new Sprite(texture,0,0,110,109);
+    sprite=new Sprite(texture,0,0,110,110);
     setPosition(x,y);
 
 
@@ -88,21 +86,26 @@ public Mudboulder (float x, float y,int i){
     @Override
     public void update(double delta) {
         velocityY-=30*delta;bottom.y+=velocityY;
-       /* switch(direction) {
+       switch(direction) {
             case 0:
                 if(interval>=velocityX * 2 * delta)
-                {setPosition(bottom.x - (velocityX * 2 * delta), bottom.y); System.out.println(interval);}
+                {setPosition(bottom.x - (velocityX * 2 * delta), bottom.y);
+                    sprite.rotate((float)((360/(Math.PI*110))*(velocityX * 2 * delta)));
+                }
                 else {setPosition(bottom.x - interval, bottom.y);interval=intervalmax;direction=1;
+                    sprite.rotate((float)((360/(Math.PI*110))*interval));
                   }
 
                 break;
             case 1:
                 if(interval>=velocityX * 2 * delta)
-                {setPosition(bottom.x + (velocityX * 2 * delta), bottom.y);}
-                else {setPosition(bottom.x+interval, bottom.y);interval=intervalmax;direction=1;}
-                System.out.println("roll right");
+                {setPosition(bottom.x + (velocityX * 2 * delta), bottom.y);
+                    sprite.rotate((float)((-360/(Math.PI*110))*(velocityX * 2 * delta)));}
+                else {setPosition(bottom.x+interval, bottom.y);interval=intervalmax;direction=0;
+                    sprite.rotate((float)((-360/(Math.PI*110))*interval));}
                 break;
-        }*/
+        }
+        interval=(interval>=velocityX * 2 * delta)?(int)(interval - (velocityX * 2 * delta)):0;
         sprite.setPosition(bottom.x,bottom.y);
     }
 
@@ -145,6 +148,20 @@ public Mudboulder (float x, float y,int i){
     public void moveRight(float delta) {
         setPosition(bottom.x +(velocityX * 2 * delta), bottom.y);
     }
+
+    @Override
+    public boolean shotby(BulletPrototype b) {
+        /*every enemies and bosses will use damage chart so the damage part should be written in enemies
+       since some enemies might immune to some weapon(s)*/
+            if(b.getClass()==Bullet.class){HP-=1;}
+
+
+
+
+
+            if(HP<=0){HP=0;return true;}
+            else{return false;}
+        }
 
     @Override
     public void draw(SpriteBatch batch) {
