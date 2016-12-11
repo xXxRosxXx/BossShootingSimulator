@@ -6,19 +6,29 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
+import static com.badlogic.gdx.utils.Align.left;
+
 public class Bullet extends BulletPrototype {
-Rectangle hitbox;
-double a,time;
-int speed;
-Texture texture;
+    Rectangle hitbox;
+    double a,time;
+    int speed;
+    Texture texture;
+    boolean left;
     Sprite sprite;
-public Bullet(float x, float y, double angle){
-time=3.75;speed=550;
-hitbox=new Rectangle(x,y,26,16);
-    texture=new Texture(Gdx.files.internal("sprite/bullet.png"));
-    sprite=new Sprite(texture,0,0,26,16);
-a=angle;setPosition(x,y);
-}
+
+    static String name="Basic Bullet";
+    static float max_ammo;
+    static float ammo=max_ammo=511;
+    static boolean isUseAmmo=false;
+
+    public Bullet(float x, float y, double angle,boolean left){
+        time=3.75;speed=550;
+        hitbox=new Rectangle(x,y,26,16);
+        texture=new Texture(Gdx.files.internal("sprite/bullet.png"));
+        sprite=new Sprite(texture,0,0,26,16);
+        this.left=left;
+        a=angle;setPosition(x,y);
+    }
     @Override
     public Playerstate hits(Rectangle r) {
         return null;
@@ -31,13 +41,14 @@ a=angle;setPosition(x,y);
 
     @Override
     public void update(double delta) {
+        if(left){ sprite.flip(true, false);}
         hitbox.x+=speed*(float)Math.cos(a)*delta;
         hitbox.y+=speed*(float)Math.sin(a)*delta;
-time-=delta;
+        time-=delta;
     }
     public boolean isDead()
     {if(time<0){return true;}
-return false;
+        return false;
     }
 
     @Override
@@ -64,7 +75,9 @@ return false;
 
     @Override
     public void draw(SpriteBatch batch) {
-        batch.draw(texture, hitbox.x, hitbox.y,26,16);
+
+        if(left){sprite.flip(true,false);}
+        batch.draw(sprite, hitbox.x, hitbox.y,26,16);
     }
 
 

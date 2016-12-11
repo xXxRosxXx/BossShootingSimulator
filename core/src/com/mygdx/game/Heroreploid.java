@@ -13,7 +13,8 @@ import static com.mygdx.game.Playerstate.*;
 public class Heroreploid extends GameObject {
     public Rectangle bottom,left,right,top,full;
     public Sprite sprite;
-
+    ///
+    WeaponManager weaponlist;
     public Texture texture;
     public Playerstate playerstate;
     public int lives,direction;
@@ -33,15 +34,15 @@ public class Heroreploid extends GameObject {
         this.setPosition(55,288);
     }
     public Playerstate hits(Rectangle r){
-         if(bottom.overlaps(r)){
+        if(bottom.overlaps(r)){
             playerstate=GROUND;
             return GROUND;}
-       if(top.overlaps(r)){
+        if(top.overlaps(r)){
             return HIT_CEILING;
         }
         if(right.overlaps(r)){
             return HIT_RIGHT;}
-       if(left.overlaps(r)){
+        if(left.overlaps(r)){
             return HIT_LEFT;}
         return AIR;
     }
@@ -50,7 +51,7 @@ public class Heroreploid extends GameObject {
             velocityY=0;
             setPosition(bottom.x,y);}
         if(type==HIT_CEILING){
-            velocityY-=5;
+            velocityY=-5;
             setPosition(bottom.x,y);
         }
         if(type==HIT_LEFT){
@@ -65,6 +66,7 @@ public class Heroreploid extends GameObject {
     public void update(double delta){
         velocityY-=30*delta;bottom.y+=velocityY;
         sprite.setPosition(bottom.x,bottom.y);
+        if(playerstate==AIR||velocityY<0){setPosition(sprite.getX(),sprite.getY());}
     }
 
 
@@ -118,7 +120,7 @@ public class Heroreploid extends GameObject {
         isDashing=true;
         if(direction==0){setPosition(bottom.x-(velocityX*4*delta),bottom.y);delay_sec(0.033);}
         else{setPosition(bottom.x+(velocityX*4*delta),bottom.y);delay_sec(0.033);}
-isDashing=false;
+        isDashing=false;
 
     }
     public void draw(SpriteBatch batch){sprite.draw(batch);}
