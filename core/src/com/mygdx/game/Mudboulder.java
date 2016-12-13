@@ -21,7 +21,7 @@ public class Mudboulder extends Enemy {
     protected int flinchtimer;
     public int direction,interval,intervalmax;
 
-    public Rectangle bottom,breakleft,left,right,breakright,top,full;
+    public Rectangle bottom,left,right,top,full;
     public Sprite sprite;
     public Texture texture;
     public Playerstate playerstate;

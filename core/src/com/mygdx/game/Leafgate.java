@@ -19,7 +19,7 @@ public class Leafgate extends GameObject{
 
     public Leafgate(int x, int y) {
         hitbox = new Rectangle(x, y, 119, 161);
-        texture = new Texture(Gdx.files.internal("sprite/windgate.png"));
+        texture = new Texture(Gdx.files.internal("sprite/leafgate.png"));
         sprite = new Sprite(texture, 0, 0, 119, 161);
         setPosition(x, y);
     }

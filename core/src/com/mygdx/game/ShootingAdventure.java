@@ -117,7 +117,19 @@ public class ShootingAdventure extends ApplicationAdapter {
 
         //updates
         player1.update(0.04);
-        for(Enemy foe : enemies){foe.update(0.04);}
+        for(Enemy foe : enemies){
+            foe.update(0.04);
+        if(foe.getClass()==Turret.class){
+            Turret t=(Turret)foe;
+            if(t.interval==t.intervalmax){
+            EnemyBullet b1=new EnemyBullet(t.hitbox.x,t.hitbox.y,Math.toRadians(90*t.direction-90),true);
+            bulletlist.add(b1);
+            EnemyBullet b2=new EnemyBullet(t.hitbox.x,t.hitbox.y,Math.toRadians(90*t.direction-45),true);
+            bulletlist.add(b2);
+            EnemyBullet b3=new EnemyBullet(t.hitbox.x,t.hitbox.y,Math.toRadians(90*t.direction-135),true);
+            bulletlist.add(b3);}
+        }
+        }
 ///updates for bullets
         for (BulletPrototype bill : bulletlist) {
             bill.update(0.04);
@@ -127,14 +139,19 @@ public class ShootingAdventure extends ApplicationAdapter {
                     deadbulletlist.add(bill);
                 }}
             //when bullets hits enemies
-            for(Enemy foe : enemies){
-
-                if(foe.getHitBox().overlaps(bill.getHitBox())) {
-                    if(foe.shotby(bill)){enemies.remove(foe);}
+            for(int i=0;i<enemies.size();i++){
+if(bill.getClass()!=EnemyBullet.class){
+                if(enemies.get(i).getHitBox().overlaps(bill.getHitBox())) {
+                    if(enemies.get(i).shotby(bill)){enemies.remove(enemies.get(i));}
                     deadbulletlist.add(bill);
-                }}
-
-
+                }
+}
+            }
+if(bill.getClass()==EnemyBullet.class) {
+    if(bill.getHitBox().overlaps(player1.getHitBox())){
+        deadbulletlist.add(bill);
+    }
+}
         }
         ///
         while(deadbulletlist.size()!=0) {
@@ -224,7 +241,7 @@ public class ShootingAdventure extends ApplicationAdapter {
                             break;
                         case DIE:
                             if (i.getClass() == Spikes.class) {
-                                player1.setPosition(100, 466);
+                                player1.setPosition(0, -600);
                             }
                             break;
                         case DOOR:
@@ -243,37 +260,41 @@ public class ShootingAdventure extends ApplicationAdapter {
                     break;
             }
             for (Enemy foe : enemies) {
-                switch (foe.hits(i.getHitBox())) {
-                    case GROUND:
-                        foe.action(GROUND, 0,i.getHitBox().y +i.getHitBox().height);
-                        break;
-                    case HIT_LEFT:
-                        switch (i.hitAction(HIT_LEFT)) {
-                            case GROUND:
-                                foe.action(HIT_LEFT,i.getHitBox().x +i.getHitBox().width + 11, 0);
-                                if(foe.getClass()==Mudboulder.class){
-                                    foe.direction=1;foe.interval=foe.intervalmax;
-                                }
-                        }
-                        break;
-                    case HIT_RIGHT:
-                        switch (i.hitAction(HIT_RIGHT)) {
-                            case GROUND:
-                                foe.action(HIT_RIGHT,i.getHitBox().x - player1.getHitBox().width - 11, 0);
-                                if (foe.getClass() == Mudboulder.class) {
-                                    foe.direction = 0;
-                                    foe.interval = foe.intervalmax;                        }
+                if (foe.getClass() != Turret.class) {
+                    switch (foe.hits(i.getHitBox())) {
+                        case GROUND:
+                            foe.action(GROUND, 0, i.getHitBox().y + i.getHitBox().height);
+                            break;
+                        case HIT_LEFT:
+                            switch (i.hitAction(HIT_LEFT)) {
+                                case GROUND:
+                                    foe.action(HIT_LEFT, i.getHitBox().x + i.getHitBox().width + 11, 0);
+                                    if (foe.getClass() == Mudboulder.class) {
+                                        foe.direction = 1;
+                                        foe.interval = foe.intervalmax;
+                                    }
+                            }
+                            break;
+                        case HIT_RIGHT:
+                            switch (i.hitAction(HIT_RIGHT)) {
+                                case GROUND:
+                                    foe.action(HIT_RIGHT, i.getHitBox().x - player1.getHitBox().width - 11, 0);
+                                    if (foe.getClass() == Mudboulder.class) {
+                                        foe.direction = 0;
+                                        foe.interval = foe.intervalmax;
+                                    }
 
-                        }
-                        break;
+                            }
+                            break;
 
 
-
-                    case HIT_CEILING:
-                        foe.action(HIT_CEILING, 0,i.getHitBox().y - foe.getHitBox().height);
-                        break;
+                        case HIT_CEILING:
+                            foe.action(HIT_CEILING, 0, i.getHitBox().y - foe.getHitBox().height);
+                            break;
+                    }
 
                 }
+
             }
         }
 
@@ -355,16 +376,20 @@ public class ShootingAdventure extends ApplicationAdapter {
     public void loadmonster (String level) {
         if (changelevel) {
             deadbulletlist.clear();bulletlist.clear();enemies.clear();
-            FileHandle file = Gdx.files.internal(level);
+            FileHandle file = Gdx.files.internal(level+"_enemy");
             StringTokenizer tokens = new StringTokenizer(file.readString());
-            file = Gdx.files.internal(level + "_enemy");
             while (tokens.hasMoreTokens()) {
                 String type =  tokens.nextToken();
                 if (type.equals("mudboulder")) {
                     enemies.add(new Mudboulder(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken()),
                             Integer.parseInt(tokens.nextToken())));
                 }
+               else if (type.equals("turret")) {
+                    enemies.add(new Turret(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken()),
+                            Integer.parseInt(tokens.nextToken())));
+                }
             }
+
             if (level.equals("fire")) {
                 player1.setPosition(328, 3016);
             }
