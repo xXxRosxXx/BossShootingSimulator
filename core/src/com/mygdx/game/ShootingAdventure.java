@@ -7,6 +7,7 @@ import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
@@ -22,18 +23,17 @@ import static com.mygdx.game.Playerstate.*;
 
 public class ShootingAdventure extends ApplicationAdapter {
     //button goes here
-    private Rectangle clickStart;
+    private Rectangle iconsquare,clickStart;
     private Texture textureStart;
     private Sprite spriteStart;
 
     //
 
-
+    private BitmapFont font;
     private SpriteBatch batch;
-    private Texture texture;
-    private Sprite sprite;
+    private Texture texture,icontexture;
+    private Sprite sprite,iconstatus;
     boolean changelevel=false;
-    public boolean duplicatestopper;
     private OrthographicCamera camera;
     private Heroreploid player1;
     private int gamestate=1;
@@ -53,13 +53,27 @@ public class ShootingAdventure extends ApplicationAdapter {
         sprite = new Sprite(texture, 0, 0, 128, 128);
         sprite.setPosition(70, 70);
         player1 = new Heroreploid();
-        player1.weaponlist=new WeaponManager(4);
-
+        player1.weaponlist=new WeaponManager(5);
+        player1.weaponlist.weaponindex=0;
+        player1.weaponlist.ammo[0]=player1.weaponlist.maxammo[0]=511;
+        player1.weaponlist.ammo[1]=player1.weaponlist.maxammo[1]=15;
+        player1.weaponlist.ammo[2]=player1.weaponlist.maxammo[2]=20;
+        player1.weaponlist.ammo[3]=player1.weaponlist.maxammo[3]=20;
+        player1.weaponlist.ammo[4]= player1.weaponlist.maxammo[4]=20;
+        player1.weaponlist.isuseammo[0]=false;player1.weaponlist.isuseammo[1]=true;
+        player1.weaponlist.isuseammo[2]=true;player1.weaponlist.isuseammo[3]=true;
+        player1.weaponlist.isuseammo[4]=true;
         player1.setPosition(300, 300);
         clickStart=new Rectangle(0,0,158,52);
+        icontexture=new Texture(Gdx.files.internal("sprite/icontexture.png"));
+
+        iconstatus=new Sprite(icontexture,46,38,20,20);
+        iconstatus.setPosition(340,370);
         textureStart=new Texture(Gdx.files.internal("sprite/button_start.png"));
         spriteStart=new Sprite(textureStart,0,0,158,52);
         spriteStart.setPosition(350,250);
+
+        font=new BitmapFont(Gdx.files.internal("font.fnt"),Gdx.files.internal("font.png"),false);
     }
     @Override
     public void render() {
@@ -78,6 +92,7 @@ public class ShootingAdventure extends ApplicationAdapter {
     public void updateCamera() {//HUD must stay with player in screen
         camera.position.x=player1.getHitBox().x;
         camera.position.y=player1.getHitBox().y+100;
+        iconstatus.setX(player1.full.x-490);iconstatus.setY(player1.full.y+170);
         camera.update();
 
 
@@ -113,10 +128,24 @@ public class ShootingAdventure extends ApplicationAdapter {
         for (Enemy foe : enemies) {
             foe.draw(batch);
         }
+        iconstatus.draw(batch);
         batch.end();
 
         //updates
         player1.update(0.04);
+
+        switch(player1.weaponlist.weaponindex) {
+            case 0:
+                iconstatus=new Sprite(icontexture,46,38,20,20);break;
+            case 1:
+                iconstatus=new Sprite(icontexture,73,38,20,20);break;
+            case 2:
+                iconstatus=new Sprite(icontexture,100,39,20,20);break;
+            case 3:
+                iconstatus=new Sprite(icontexture,126,37,20,20);break;
+            case 4:
+                iconstatus=new Sprite(icontexture,151,37,20,20);break;
+        }
         for(Enemy foe : enemies){
             foe.update(0.04);
         if(foe.getClass()==Turret.class){
@@ -135,7 +164,7 @@ public class ShootingAdventure extends ApplicationAdapter {
             bill.update(0.04);
             if(bill.isDead()){this.deadbulletlist.add(bill);}
             for(GameObject t : list){
-                if(t.getHitBox().overlaps(bill.getHitBox())) {
+                if(t.getHitBox().overlaps(bill.getHitBox())&&(bill.getClass()!=Heatvision.class)) {
                     deadbulletlist.add(bill);
                 }}
             //when bullets hits enemies
@@ -326,18 +355,39 @@ if(bill.getClass()==EnemyBullet.class) {
             }
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {player1.weaponlist.changeweaponleft();
-            //System.out.println(player1.weaponlist.weaponindex+"/"+player1.weaponlist.arsenal);
+           System.out.println(player1.weaponlist.weaponindex+"/"+player1.weaponlist.arsenal);
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {player1.weaponlist.changeweaponright();
-            // System.out.println(player1.weaponlist.weaponindex+"/"+player1.weaponlist.arsenal);
+           System.out.println(player1.weaponlist.weaponindex+"/"+player1.weaponlist.arsenal);
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.C)) {
-            if(player1.direction==1){
-                bulletlist.add(new Bullet(player1.bottom.x+47,player1.bottom.y+57,0,false));}
-            else{
-                Bullet xbuster=new Bullet(player1.bottom.x,player1.bottom.y+57,Math.toRadians(180),true);
-                bulletlist.add(xbuster);
+        if (Gdx.input.isKeyJustPressed(Input.Keys.C)
+                &&(!player1.weaponlist.isuseammo[player1.weaponlist.weaponindex]
+      ||(player1.weaponlist.isuseammo[player1.weaponlist.weaponindex]&&
+                player1.weaponlist.ammo[player1.weaponlist.weaponindex]>0) ))
+        {
+            if(player1.weaponlist.isuseammo[player1.weaponlist.weaponindex]){
+                player1.weaponlist.ammo[player1.weaponlist.weaponindex]-=1;}
+            switch(player1.weaponlist.weaponindex) {
+                case 0:
+                if (player1.direction == 1) {
+                    bulletlist.add(new Bullet(player1.full.x + 47, player1.full.y + 57, 0, false));
+                } else {
+                    Bullet xbuster = new Bullet(player1.full.x, player1.full.y + 57, Math.toRadians(180), true);
+                    bulletlist.add(xbuster);
+                }
+                break;
+                case 1:
+                    if (player1.direction == 1) {
+                        bulletlist.add(new Heatvision(player1.full.x, player1.full.y + 82,0));
+                    } else {
+                        Heatvision hv = new Heatvision(player1.full.x-900, player1.full.y +82,Math.toRadians(180));
+                        bulletlist.add(hv);
+                    }
+                    break;
+
             }
+            System.out.println(player1.weaponlist.weaponindex+" "+player1.weaponlist.ammo[player1.weaponlist.weaponindex]+"/"+
+                    player1.weaponlist.maxammo[player1.weaponlist.weaponindex]);
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {gamestate=1;level="testlevel";
             list.clear();deadbulletlist.clear();bulletlist.clear();enemies.clear();

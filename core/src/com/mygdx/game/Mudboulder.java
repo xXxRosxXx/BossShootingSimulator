@@ -155,7 +155,7 @@ public Mudboulder (float x, float y,int i){
        since some enemies might immune to some weapon(s)*/
             if(b.getClass()==Bullet.class){HP-=1;}
 
-
+       else if(b.getClass()==Heatvision.class){HP-=1;}
 
 
 

@@ -51,6 +51,7 @@ public Rectangle hitbox,hitbox1,hitbox2;
         /*every enemies and bosses will use damage chart so the damage part should be written in enemies
        since some enemies might immune to some weapon(s)*/
         if(b.getClass()==Bullet.class){HP-=1;}
+        else if(b.getClass()==Heatvision.class){HP-=1;}
         if(HP<=0){HP=0;return true;}
         else{return false;}
     }

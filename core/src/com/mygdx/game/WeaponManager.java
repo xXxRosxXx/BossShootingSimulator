@@ -5,8 +5,13 @@ package com.mygdx.game;
  */
 public class WeaponManager {
     int weaponindex,arsenal;
+    double ammo[],maxammo[];
+    boolean isuseammo[];
     public WeaponManager(int arsenal){
         weaponindex=0;this.arsenal=arsenal;
+        ammo= new double[arsenal];
+        maxammo=new double[arsenal];
+        isuseammo=new boolean[arsenal];
     }
 
     public void changeweaponright(){weaponindex=(weaponindex>=this.arsenal)?0:weaponindex+1;}

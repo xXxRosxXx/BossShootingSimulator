@@ -17,9 +17,7 @@ public class Bullet extends BulletPrototype {
     Sprite sprite;
 
     static String name="Basic Bullet";
-    static float max_ammo;
-    static float ammo=max_ammo=511;
-    static boolean isUseAmmo=false;
+
 
     public Bullet(float x, float y, double angle,boolean left){
         time=3.75;speed=550;

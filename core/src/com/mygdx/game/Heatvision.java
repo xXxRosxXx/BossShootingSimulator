@@ -7,27 +7,29 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Rectangle;
 
 /**
- * Created by Ros on 12-Dec-16.
+ * Created by Ros on 13-Dec-16.
  */
-public class EnemyBullet extends BulletPrototype {
+public class Heatvision extends BulletPrototype {
     Rectangle hitbox;
     double a,time;
-    int speed;
     Texture texture[];
     Sprite sprite;
-    int frame;
-    public EnemyBullet(float x, float y, double angle,boolean left){
+    int frame,speed;
+    static String name="Heat Vision";
 
-        texture=new Texture[2];
-        texture[0]=new Texture(Gdx.files.internal("sprite/enemyshot1.png"));
-        texture[1]=new Texture(Gdx.files.internal("sprite/enemyshot2.png"));
-        time=5;speed=270;
-       if(frame==0) {sprite=new Sprite(texture[0],0,0,18,18);hitbox=new Rectangle(x,y,18,18);}
-        else if(frame==1) {sprite=new Sprite(texture[1],0,0,16,16);hitbox=new Rectangle(x,y,16,16);}
-        a=angle;setPosition(x,y);
-    }
+    public Heatvision(float x, float y,double angle){
+        a=angle;
+        texture=new Texture[3];
+        texture[0]=new Texture(Gdx.files.internal("sprite/heatvision1.png"));
+        texture[1]=new Texture(Gdx.files.internal("sprite/heatvision2.png"));
+        texture[2]=new Texture(Gdx.files.internal("sprite/heatvision3.png"));
+        time=3.8;speed=600;
+        hitbox=new Rectangle(x,y,900,13);
 
-
+        if(frame==0) {sprite=new Sprite(texture[0],0,0,900,13);}
+        else if(frame==1) {sprite=new Sprite(texture[1],0,0,900,13);}
+        else if(frame==2) {sprite=new Sprite(texture[2],0,0,900,13);} setPosition(x,y);
+}
 
     @Override
     public Playerstate hits(Rectangle r) {
@@ -41,12 +43,11 @@ public class EnemyBullet extends BulletPrototype {
 
     @Override
     public void update(double delta) {
-frame=(frame<texture.length-1)?frame+1:0;
+        frame=(frame<texture.length-1)?frame+1:0;
         hitbox.x+=speed*(float)Math.cos(a)*delta;
         hitbox.y+=speed*(float)Math.sin(a)*delta;
         time-=delta;
-        if(frame==0) {sprite=new Sprite(texture[0],0,0,18,18);hitbox=new Rectangle(hitbox.x,hitbox.y,18,18);}
-        else if(frame==1) {sprite=new Sprite(texture[1],0,0,16,16);hitbox=new Rectangle(hitbox.x,hitbox.y,16,16);}
+    sprite=new Sprite(texture[frame],0,0,18,18);
     }
 
     @Override
@@ -78,8 +79,7 @@ frame=(frame<texture.length-1)?frame+1:0;
 
     @Override
     public void draw(SpriteBatch batch) {
-        if(frame==0)batch.draw(sprite, hitbox.x, hitbox.y,18,18);
-        else if(frame==1)batch.draw(sprite, hitbox.x, hitbox.y,16,16);
+        batch.draw(sprite, hitbox.x, hitbox.y,900,13);
     }
 
     @Override

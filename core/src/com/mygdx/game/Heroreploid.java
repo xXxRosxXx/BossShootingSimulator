@@ -12,6 +12,7 @@ import static com.mygdx.game.Playerstate.*;
  */
 public class Heroreploid extends GameObject {
     public Rectangle bottom,left,right,top,full;
+    public Rectangle groundpointer,leftpointer,rightpointer;
     public Sprite sprite;
     ///
     WeaponManager weaponlist;
@@ -23,6 +24,7 @@ public class Heroreploid extends GameObject {
     public Heroreploid(){
         playerstate=AIR;direction=1;
         velocityX=100;velocityY=0;
+        groundpointer=leftpointer=rightpointer=null;
         full=new Rectangle(0,0,44,109);
         bottom=new Rectangle(0,0,44,22);
         left=new Rectangle(0,8,8,101);
@@ -35,15 +37,15 @@ public class Heroreploid extends GameObject {
     }
     public Playerstate hits(Rectangle r){
         if(bottom.overlaps(r)){
-            playerstate=GROUND;
+            playerstate=GROUND;groundpointer=r;
             return GROUND;}
         if(top.overlaps(r)){
             return HIT_CEILING;
         }
         if(right.overlaps(r)){
-            return HIT_RIGHT;}
+            rightpointer=r;return HIT_RIGHT;}
         if(left.overlaps(r)){
-            return HIT_LEFT;}
+            leftpointer=r;return HIT_LEFT;}
         return AIR;
     }
     public void action(Playerstate type,double x,double y){
