@@ -39,7 +39,8 @@ public class ShootingAdventure extends ApplicationAdapter {
     private Heroreploid player1;
     private int gamestate=1;
     public String level="testlevel";
-    TextureRegion backgroundleaf = new TextureRegion(new Texture("sprite/leaf background.png"), 0, 0,9664,2592);
+    Texture textureleaf;
+    Sprite backgroundleaf;
     public ArrayList<GameObject> list = new ArrayList<GameObject>();
     public ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     public ArrayList<BulletPrototype> bulletlist = new ArrayList<BulletPrototype>();
@@ -55,6 +56,8 @@ public class ShootingAdventure extends ApplicationAdapter {
         sprite = new Sprite(texture, 0, 0, 128, 128);
         sprite.setPosition(70, 70);
         player1 = new Heroreploid();
+        textureleaf =new Texture(Gdx.files.internal("sprite/leafbackground.png"));
+        backgroundleaf=new Sprite(textureleaf,0,0,9664,2952);
         player1.weaponlist=new WeaponManager(5);
         player1.weaponlist.weaponindex=0;
         player1.weaponlist.ammo[0]=player1.weaponlist.maxammo[0]=511;
@@ -115,11 +118,11 @@ public class ShootingAdventure extends ApplicationAdapter {
     }
     public void maingame() {
         Gdx.gl.glClearColor(1,1,1,1);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+      Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
         loadlevel(level);loadmonster(level);
         batch.begin();
-if(level=="leaf"){ batch.draw(backgroundleaf, 0, 0);}
+//if(level=="leaf"){batch.draw(textureleaf,0,0);}
         player1.draw(batch);
         for (GameObject t : list) {
             t.draw(batch);
