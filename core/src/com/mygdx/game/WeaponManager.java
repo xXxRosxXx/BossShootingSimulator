@@ -14,8 +14,8 @@ public class WeaponManager {
         isuseammo=new boolean[arsenal];
     }
 
-    public void changeweaponright(){weaponindex=(weaponindex>=this.arsenal)?0:weaponindex+1;}
-    public void changeweaponleft(){weaponindex=(weaponindex<=0)?this.arsenal:weaponindex-1;}
+    public void changeweaponright(){weaponindex=(weaponindex>=this.arsenal-1)?0:weaponindex+1;}
+    public void changeweaponleft(){weaponindex=(weaponindex<=0)?this.arsenal-1:weaponindex-1;}
 
 
 

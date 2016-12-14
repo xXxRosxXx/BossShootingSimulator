@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.mygdx.game.GameObject;
 import com.mygdx.game.Heroreploid;
@@ -26,10 +27,10 @@ public class ShootingAdventure extends ApplicationAdapter {
     private Rectangle iconsquare,clickStart;
     private Texture textureStart;
     private Sprite spriteStart;
-
+    private BitmapFont ammostatus;
     //
 
-    private BitmapFont font;
+    private BitmapFont livesfont;
     private SpriteBatch batch;
     private Texture texture,icontexture;
     private Sprite sprite,iconstatus;
@@ -38,6 +39,7 @@ public class ShootingAdventure extends ApplicationAdapter {
     private Heroreploid player1;
     private int gamestate=1;
     public String level="testlevel";
+    TextureRegion backgroundleaf = new TextureRegion(new Texture("sprite/leaf background.png"), 0, 0,9664,2592);
     public ArrayList<GameObject> list = new ArrayList<GameObject>();
     public ArrayList<Enemy> enemies = new ArrayList<Enemy>();
     public ArrayList<BulletPrototype> bulletlist = new ArrayList<BulletPrototype>();
@@ -73,7 +75,7 @@ public class ShootingAdventure extends ApplicationAdapter {
         spriteStart=new Sprite(textureStart,0,0,158,52);
         spriteStart.setPosition(350,250);
 
-        font=new BitmapFont(Gdx.files.internal("font.fnt"),Gdx.files.internal("font.png"),false);
+        ammostatus=new BitmapFont(Gdx.files.internal("font.fnt"),Gdx.files.internal("font.png"),false);
     }
     @Override
     public void render() {
@@ -117,7 +119,7 @@ public class ShootingAdventure extends ApplicationAdapter {
         batch.setProjectionMatrix(camera.combined);
         loadlevel(level);loadmonster(level);
         batch.begin();
-
+if(level=="leaf"){ batch.draw(backgroundleaf, 0, 0);}
         player1.draw(batch);
         for (GameObject t : list) {
             t.draw(batch);
@@ -129,6 +131,13 @@ public class ShootingAdventure extends ApplicationAdapter {
             foe.draw(batch);
         }
         iconstatus.draw(batch);
+        if(!player1.weaponlist.isuseammo[player1.weaponlist.weaponindex]){
+            ammostatus.draw(batch,"Inf/Inf",player1.full.x-530,player1.full.y+150);
+        } else{
+            ammostatus.draw(batch,(int)player1.weaponlist.ammo[player1.weaponlist.weaponindex]+"/"+
+                    (int)player1.weaponlist.maxammo[player1.weaponlist.weaponindex],player1.full.x-530,player1.full.y+150);
+        }
+
         batch.end();
 
         //updates
@@ -172,7 +181,7 @@ public class ShootingAdventure extends ApplicationAdapter {
 if(bill.getClass()!=EnemyBullet.class){
                 if(enemies.get(i).getHitBox().overlaps(bill.getHitBox())) {
                     if(enemies.get(i).shotby(bill)){enemies.remove(enemies.get(i));}
-                    deadbulletlist.add(bill);
+                   if(bill.getClass()!=Heatvision.class) deadbulletlist.add(bill);
                 }
 }
             }
@@ -217,7 +226,7 @@ if(bill.getClass()==EnemyBullet.class) {
                 case HIT_LEFT:
                     switch (i.hitAction(HIT_LEFT)) {
                         case GROUND:
-                            player1.action(HIT_LEFT,i.getHitBox().x +i.getHitBox().width + 11, 0);
+                            player1.action(HIT_LEFT,i.getHitBox().x +i.getHitBox().width , 0);
                             break;
                         case DIE:
                             if (i.getClass() == Spikes.class) {
@@ -241,7 +250,7 @@ if(bill.getClass()==EnemyBullet.class) {
                 case HIT_RIGHT:
                     switch (i.hitAction(HIT_RIGHT)) {
                         case GROUND:
-                            player1.action(HIT_RIGHT,i.getHitBox().x - player1.getHitBox().width - 11, 0);
+                            player1.action(HIT_RIGHT,i.getHitBox().x - player1.getHitBox().width, 0);
                             break;
                         case DIE:
                             if (i.getClass() == Spikes.class) {
@@ -384,10 +393,7 @@ if(bill.getClass()==EnemyBullet.class) {
                         bulletlist.add(hv);
                     }
                     break;
-
             }
-            System.out.println(player1.weaponlist.weaponindex+" "+player1.weaponlist.ammo[player1.weaponlist.weaponindex]+"/"+
-                    player1.weaponlist.maxammo[player1.weaponlist.weaponindex]);
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {gamestate=1;level="testlevel";
             list.clear();deadbulletlist.clear();bulletlist.clear();enemies.clear();
@@ -442,6 +448,9 @@ if(bill.getClass()==EnemyBullet.class) {
 
             if (level.equals("fire")) {
                 player1.setPosition(328, 3016);
+            }
+           else if (level.equals("leaf")) {
+                player1.setPosition(640,2176);
             }
         }
     }

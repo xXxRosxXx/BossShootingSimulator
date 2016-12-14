@@ -26,7 +26,7 @@ public class Heroreploid extends GameObject {
         velocityX=100;velocityY=0;
         groundpointer=leftpointer=rightpointer=null;
         full=new Rectangle(0,0,44,109);
-        bottom=new Rectangle(0,0,44,22);
+        bottom=new Rectangle(6,0,32,8);
         left=new Rectangle(0,8,8,101);
         right=new Rectangle(36,8,8,101);
         top=new Rectangle(8,101,28,8);
@@ -36,38 +36,42 @@ public class Heroreploid extends GameObject {
         this.setPosition(55,288);
     }
     public Playerstate hits(Rectangle r){
-        if(bottom.overlaps(r)){
-            playerstate=GROUND;groundpointer=r;
-            return GROUND;}
+
         if(top.overlaps(r)){
             return HIT_CEILING;
         }
+        if(bottom.overlaps(r)){
+            playerstate=GROUND;groundpointer=r;
+            return GROUND;}
         if(right.overlaps(r)){
             rightpointer=r;return HIT_RIGHT;}
         if(left.overlaps(r)){
             leftpointer=r;return HIT_LEFT;}
+
         return AIR;
     }
     public void action(Playerstate type,double x,double y){
-        if(type==GROUND){
-            velocityY=0;
-            setPosition(bottom.x,y);}
+
         if(type==HIT_CEILING){
             velocityY=-5;
-            setPosition(bottom.x,y);
+            setPosition(full.x,y);
         }
         if(type==HIT_LEFT){
-            setPosition(x+10,bottom.y);
+            setPosition(x+5,full.y);System.out.println("hit left");
+        }
+        if(type==GROUND){
+            velocityY=0;
+            setPosition(full.x,y);
         }
         if(type==HIT_RIGHT){
-            setPosition(x-10,bottom.y);
+            setPosition(x-5,full.y);
         }
 
 
     }
     public void update(double delta){
-        velocityY-=30*delta;bottom.y+=velocityY;
-        sprite.setPosition(bottom.x,bottom.y);
+        velocityY-=30*delta;full.y+=velocityY;
+        sprite.setPosition(full.x,full.y);
         if(playerstate==AIR||velocityY<0){setPosition(sprite.getX(),sprite.getY());}
     }
 
@@ -76,22 +80,22 @@ public class Heroreploid extends GameObject {
         full.x=(float)x;
         full.y=(float)y;
 
-        bottom.x=(float)x;
+        bottom.x=(float)x+4;
         bottom.y=(float)y;
 
         left.x=(float)x;
         left.y=(float)y+8;
 
-        right.x=(float)x+39;
+        right.x=(float)x+36;
         right.y=(float)y+8;
 
         top.x=(float)x+8;
-        top.y=(float)y+106;
+        top.y=(float)y+101;
         sprite.setPosition((float)x,(float)y);
     }
     public void moveLeft(float delta){
         if(!isDashing) {
-            setPosition(bottom.x - (velocityX * 2 * delta), bottom.y);
+            setPosition(full.x - (velocityX * 2 * delta),full.y);
             if (direction == 1) {
                 direction = 0;
                 sprite.flip(true, false);
@@ -100,7 +104,7 @@ public class Heroreploid extends GameObject {
     }
     public void moveRight(float delta){
         if(!isDashing) {
-            setPosition(bottom.x + (velocityX * 2 * delta), bottom.y);
+            setPosition(full.x + (velocityX * 2 * delta),full.y);
             if (direction == 0) {
                 direction = 1;
                 sprite.flip(true, false);
@@ -120,8 +124,8 @@ public class Heroreploid extends GameObject {
     public void dash(float delta){
 
         isDashing=true;
-        if(direction==0){setPosition(bottom.x-(velocityX*4*delta),bottom.y);delay_sec(0.033);}
-        else{setPosition(bottom.x+(velocityX*4*delta),bottom.y);delay_sec(0.033);}
+        if(direction==0){setPosition(full.x-(velocityX*4*delta),full.y);delay_sec(0.033);}
+        else{setPosition(full.x+(velocityX*4*delta),full.y);delay_sec(0.033);}
         isDashing=false;
 
     }
