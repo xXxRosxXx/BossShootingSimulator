@@ -15,7 +15,7 @@ public class Brick extends GameObject {
     Rectangle hitbox;
     Sprite sprite;
     Texture texture;
-static String level="testlevel";
+static String level;
 
     public Brick(int x,int y){
 

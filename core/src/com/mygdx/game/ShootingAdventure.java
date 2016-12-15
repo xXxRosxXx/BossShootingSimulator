@@ -33,13 +33,13 @@ public class ShootingAdventure extends ApplicationAdapter {
     private BitmapFont livesfont;
     private SpriteBatch batch;
     private Texture texture,icontexture;
-    private Sprite sprite,iconstatus;
+    private Sprite sprite,iconstatus,hpbar;
     boolean changelevel=false;
     private OrthographicCamera camera;
     private Heroreploid player1;
     private int gamestate=1;
     public String level="testlevel";
-    Texture textureleaf;
+    Texture textureleaf,hptexture;
     Sprite backgroundleaf;
     public ArrayList<GameObject> list = new ArrayList<GameObject>();
     public ArrayList<Enemy> enemies = new ArrayList<Enemy>();
@@ -74,10 +74,11 @@ public class ShootingAdventure extends ApplicationAdapter {
 
         iconstatus=new Sprite(icontexture,46,38,20,20);
         iconstatus.setPosition(340,370);
+        hpbar=new Sprite(new Texture(Gdx.files.internal("sprite/hpbar.png")),0,0,7,114);
         textureStart=new Texture(Gdx.files.internal("sprite/button_start.png"));
         spriteStart=new Sprite(textureStart,0,0,158,52);
         spriteStart.setPosition(350,250);
-
+          hptexture=new Texture(Gdx.files.internal("sprite/hpbar.png"));
         ammostatus=new BitmapFont(Gdx.files.internal("font.fnt"),Gdx.files.internal("font.png"),false);
     }
     @Override
@@ -98,6 +99,7 @@ public class ShootingAdventure extends ApplicationAdapter {
         camera.position.x=player1.getHitBox().x;
         camera.position.y=player1.getHitBox().y+100;
         iconstatus.setX(player1.full.x-490);iconstatus.setY(player1.full.y+170);
+        hpbar.setX(player1.full.x-530);hpbar.setY(player1.full.y+150);
         camera.update();
 
 
@@ -113,7 +115,7 @@ public class ShootingAdventure extends ApplicationAdapter {
         batch.end();
         camera.position.x=400;camera.position.y=240;camera.update();
         clickStart.x=350;clickStart.y=250;
-        if(Gdx.input.isTouched()){gamestate=2;changelevel=true;
+        if(Gdx.input.isTouched()){gamestate=2;Brick.level=level="testlevel";changelevel=true;
         }
     }
     public void maingame() {
@@ -140,12 +142,12 @@ public class ShootingAdventure extends ApplicationAdapter {
             ammostatus.draw(batch,(int)player1.weaponlist.ammo[player1.weaponlist.weaponindex]+"/"+
                     (int)player1.weaponlist.maxammo[player1.weaponlist.weaponindex],player1.full.x-530,player1.full.y+150);
         }
-
+        hpbar.draw(batch);
         batch.end();
 
         //updates
         player1.update(0.04);
-
+        hpbar=new Sprite(hptexture,0,3*(player1.maxHP-player1.HP),7,3*player1.HP);
         switch(player1.weaponlist.weaponindex) {
             case 0:
                 iconstatus=new Sprite(icontexture,46,38,20,20);break;
@@ -163,11 +165,11 @@ public class ShootingAdventure extends ApplicationAdapter {
         if(foe.getClass()==Turret.class){
             Turret t=(Turret)foe;
             if(t.interval==t.intervalmax){
-            EnemyBullet b1=new EnemyBullet(t.hitbox.x,t.hitbox.y,Math.toRadians(90*t.direction-90),true);
+            EnemyBullet b1=new EnemyBullet(t.hitbox.x,t.hitbox.y,Math.toRadians(90*t.direction-90),"normal");
             bulletlist.add(b1);
-            EnemyBullet b2=new EnemyBullet(t.hitbox.x,t.hitbox.y,Math.toRadians(90*t.direction-45),true);
+            EnemyBullet b2=new EnemyBullet(t.hitbox.x,t.hitbox.y,Math.toRadians(90*t.direction-45),"normal");
             bulletlist.add(b2);
-            EnemyBullet b3=new EnemyBullet(t.hitbox.x,t.hitbox.y,Math.toRadians(90*t.direction-135),true);
+            EnemyBullet b3=new EnemyBullet(t.hitbox.x,t.hitbox.y,Math.toRadians(90*t.direction-135),"normal");
             bulletlist.add(b3);}
         }
         }
@@ -190,6 +192,7 @@ if(bill.getClass()!=EnemyBullet.class){
             }
 if(bill.getClass()==EnemyBullet.class) {
     if(bill.getHitBox().overlaps(player1.getHitBox())){
+        if(player1.flinchtimer==0){player1.HP-=(player1.HP>=3)?3:player1.HP;player1.flinchtimer=0.8;}
         deadbulletlist.add(bill);
     }
 }
@@ -209,7 +212,7 @@ if(bill.getClass()==EnemyBullet.class) {
                             break;
                         case DIE:
                             if (i.getClass() == Spikes.class) {
-                                player1.setPosition(100, 466);
+                           player1.HP=0;player1.setPosition(100, 466);
                             }
                             break;
                         case DOOR:
@@ -223,6 +226,11 @@ if(bill.getClass()==EnemyBullet.class) {
                                 level = "leaf";
                             }
                             changelevel = true;
+                            break;
+                        case BOSS:
+                            if(level=="fire"){player1.setPosition(4352,640);}
+                            else if(level=="leaf"){player1.setPosition(6144,512);}
+                            player1.playerstate=AIR;
                             break;
                     }
                     break;
@@ -233,7 +241,7 @@ if(bill.getClass()==EnemyBullet.class) {
                             break;
                         case DIE:
                             if (i.getClass() == Spikes.class) {
-                                player1.setPosition(100, 466);
+                                player1.HP=0;player1.setPosition(100, 466);
                             }
                             break;
                         case DOOR:
@@ -247,6 +255,11 @@ if(bill.getClass()==EnemyBullet.class) {
                                 level = "leaf";
                             }
                             changelevel = true;
+                            break;
+                        case BOSS:
+                            if(level=="fire"){player1.setPosition(4352,640);}
+                            else if(level=="leaf"){player1.setPosition(6144,512);}
+                            player1.playerstate=AIR;
                             break;
                     }
                     break;
@@ -257,7 +270,7 @@ if(bill.getClass()==EnemyBullet.class) {
                             break;
                         case DIE:
                             if (i.getClass() == Spikes.class) {
-                                player1.setPosition(100, 466);
+                                player1.HP=0;player1.setPosition(100, 466);
                             }
                             break;
                         case DOOR:
@@ -271,6 +284,11 @@ if(bill.getClass()==EnemyBullet.class) {
                                 level = "leaf";
                             }
                             changelevel = true;
+                            break;
+                        case BOSS:
+                            if(level=="fire"){player1.setPosition(4352,640);}
+                            else if(level=="leaf"){player1.setPosition(6144,512);}
+                            player1.playerstate=AIR;
                             break;
                     }
                     break;
@@ -297,11 +315,16 @@ if(bill.getClass()==EnemyBullet.class) {
                             }
                             changelevel = true;
                             break;
+                        case BOSS:
+                            if(level=="fire"){player1.setPosition(4352,640);}
+                            else if(level=="leaf"){player1.setPosition(6144,512);}
+                            player1.playerstate=AIR;
+                            break;
                     }
                     break;
             }
             for (Enemy foe : enemies) {
-                if (foe.getClass() != Turret.class) {
+                if (foe.getClass() != Turret.class&&foe.getClass() != Woodblock.class) {
                     switch (foe.hits(i.getHitBox())) {
                         case GROUND:
                             foe.action(GROUND, 0, i.getHitBox().y + i.getHitBox().height);
@@ -335,7 +358,26 @@ if(bill.getClass()==EnemyBullet.class) {
                     }
 
                 }
+                if (foe.getClass() != Woodblock.class) {
+if(player1.getHitBox().overlaps(foe.getHitBox())&&player1.flinchtimer==0) {
+player1.HP-=(player1.HP>=4)?4:player1.HP;player1.flinchtimer=1.5;
+}
+                }
+                else{
+                    switch(player1.hits(foe.getHitBox())) {
+                        case GROUND:
+                            player1.action(GROUND, 0,i.getHitBox().y +i.getHitBox().height);
+                            break;
+                        case HIT_LEFT:
+                            player1.action(HIT_LEFT,i.getHitBox().x +i.getHitBox().width , 0);
+                            break;
+                        case HIT_RIGHT:
+                            player1.action(HIT_RIGHT,i.getHitBox().x - player1.getHitBox().width, 0);
+                        case HIT_CEILING:
+                            player1.action(HIT_CEILING, 0,i.getHitBox().y - player1.getHitBox().height);
 
+                    }
+                }
             }
         }
 
@@ -398,7 +440,7 @@ if(bill.getClass()==EnemyBullet.class) {
                     break;
             }
         }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {gamestate=1;level="testlevel";
+        if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {gamestate=1;level="testlevel";player1.HP=player1.maxHP;
             list.clear();deadbulletlist.clear();bulletlist.clear();enemies.clear();
             player1.setPosition(400, 300); player1.velocityY=0;
         }//test recall
@@ -424,7 +466,11 @@ if(bill.getClass()==EnemyBullet.class) {
                     list.add(new Poisiongate(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken())));
                 } else if (type.equals("leafgate")) {
                     list.add(new Leafgate(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken())));
+                } else if (type.equals("bossgate")) {
+                    list.add(new Bossgate(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken()),
+                            Integer.parseInt(tokens.nextToken())));
                 }
+
                 Brick.level=level;
             }
         }
@@ -446,6 +492,9 @@ if(bill.getClass()==EnemyBullet.class) {
                else if (type.equals("turret")) {
                     enemies.add(new Turret(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken()),
                             Integer.parseInt(tokens.nextToken())));
+                }
+                else if (type.equals("woodblock")) {
+                    enemies.add(new Woodblock(Integer.parseInt(tokens.nextToken()), Integer.parseInt(tokens.nextToken())));
                 }
             }
 

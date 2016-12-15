@@ -13,10 +13,9 @@ import static com.mygdx.game.Playerstate.HIT_LEFT;
  * Created by Ros on 06-Dec-16.
  */
 public class Mudboulder extends Enemy {
-    protected int HP=10;
-    protected int maxHP=10;
-    protected boolean dead=false;
-    protected int damage;
+    public  int HP=10;
+    public  int maxHP=10;
+    public  int damage=4;
     protected boolean flinching;
     protected int flinchtimer;
     public int direction,interval,intervalmax;

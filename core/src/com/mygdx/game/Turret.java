@@ -10,10 +10,9 @@ import com.badlogic.gdx.math.Rectangle;
  * Created by Ros on 12-Dec-16.
  */
 public class Turret extends Enemy {
-    protected int HP=10;
-    protected int maxHP=10;
-    protected boolean dead=false;
-    protected int damage;
+    public int HP=10;
+    public int maxHP=10;
+    public  int damage=4;
     protected boolean flinching;
     protected int flinchtimer;
     public double interval,intervalmax;

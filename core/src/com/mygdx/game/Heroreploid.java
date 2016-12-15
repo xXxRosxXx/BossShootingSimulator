@@ -18,10 +18,14 @@ public class Heroreploid extends GameObject {
     WeaponManager weaponlist;
     public Texture texture;
     public Playerstate playerstate;
-    public int lives,direction;
+    public int lives,direction,HP,maxHP;
     public double velocityX,velocityY;
+    public boolean flinching;
+    public double flinchtimer;
     boolean isDashing=false;
     public Heroreploid(){
+        flinchtimer=0;flinching=false;
+        HP=maxHP=38;
         playerstate=AIR;direction=1;
         velocityX=100;velocityY=0;
         groundpointer=leftpointer=rightpointer=null;
@@ -57,7 +61,6 @@ public class Heroreploid extends GameObject {
             setPosition(full.x,y);
         }
         if(type==HIT_LEFT){
-            setPosition(x+5,full.y);System.out.println("hit left");
         }
         if(type==GROUND){
             velocityY=0;
@@ -70,6 +73,8 @@ public class Heroreploid extends GameObject {
 
     }
     public void update(double delta){
+        if(flinchtimer==0){flinching=false;}
+        else{flinching=true;flinchtimer=(flinchtimer>=delta)?flinchtimer-delta:0;}
         velocityY-=30*delta;full.y+=velocityY;
         sprite.setPosition(full.x,full.y);
         if(playerstate==AIR||velocityY<0){setPosition(sprite.getX(),sprite.getY());}
