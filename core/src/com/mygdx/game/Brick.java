@@ -19,10 +19,15 @@ static String level;
 
     public Brick(int x,int y){
 
-        if(level.equals("testlevel")||level.equals("fire")){
+        if(level.equals("testlevel")){
             hitbox=new Rectangle(x,y,128,128);
-        texture=new Texture(Gdx.files.internal("sprite/brick_volcano.png"));
+        texture=new Texture(Gdx.files.internal("sprite/brick_test.png"));
         sprite=new Sprite(texture,0,0,128,128);
+        }
+       else if(level.equals("fire")){
+            hitbox=new Rectangle(x,y,128,128);
+            texture=new Texture(Gdx.files.internal("sprite/brick_volcano.png"));
+            sprite=new Sprite(texture,0,0,128,128);
         }
        else if(level.equals("wind")){
             hitbox=new Rectangle(x+31,y+30,128,128);

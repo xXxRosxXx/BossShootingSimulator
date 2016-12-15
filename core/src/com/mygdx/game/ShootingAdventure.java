@@ -24,12 +24,12 @@ import static com.mygdx.game.Playerstate.*;
 
 public class ShootingAdventure extends ApplicationAdapter {
     //button goes here
-    private Rectangle iconsquare,clickStart;
-    private Texture textureStart;
-    private Sprite spriteStart;
-    private BitmapFont ammostatus;
+    private Rectangle clickAgain,clickStart;
+    private Texture textureAgain,textureStart;
+    private Sprite spriteAgain,spriteStart;
+    private BitmapFont ammostatus,title;
     //
-
+    public boolean dead;
     private BitmapFont livesfont;
     private SpriteBatch batch;
     private Texture texture,icontexture;
@@ -37,7 +37,7 @@ public class ShootingAdventure extends ApplicationAdapter {
     boolean changelevel=false;
     private OrthographicCamera camera;
     private Heroreploid player1;
-    private int gamestate=1;
+    private int gamestate=1,lives;
     public String level="testlevel";
     Texture textureleaf,hptexture;
     Sprite backgroundleaf;
@@ -48,7 +48,8 @@ public class ShootingAdventure extends ApplicationAdapter {
 
     @Override
     public void create() {
-
+        SoundManager.create();
+            lives=3;dead=false;
         camera = new OrthographicCamera();
         camera.setToOrtho(false, 1260, 700);
         batch = new SpriteBatch();
@@ -68,18 +69,19 @@ public class ShootingAdventure extends ApplicationAdapter {
         player1.weaponlist.isuseammo[0]=false;player1.weaponlist.isuseammo[1]=true;
         player1.weaponlist.isuseammo[2]=true;player1.weaponlist.isuseammo[3]=true;
         player1.weaponlist.isuseammo[4]=true;
-        player1.setPosition(300, 300);
-        clickStart=new Rectangle(0,0,158,52);
+        player1.setPosition(1280,768);
+        clickAgain=clickStart=new Rectangle(0,0,158,52);
         icontexture=new Texture(Gdx.files.internal("sprite/icontexture.png"));
 
         iconstatus=new Sprite(icontexture,46,38,20,20);
         iconstatus.setPosition(340,370);
         hpbar=new Sprite(new Texture(Gdx.files.internal("sprite/hpbar.png")),0,0,7,114);
         textureStart=new Texture(Gdx.files.internal("sprite/button_start.png"));
-        spriteStart=new Sprite(textureStart,0,0,158,52);
-        spriteStart.setPosition(350,250);
+        textureAgain=new Texture(Gdx.files.internal("sprite/button_again.png"));
+        spriteStart=new Sprite(textureStart,0,0,158,52);spriteAgain=new Sprite(textureAgain,0,0,158,52);
+        spriteStart.setPosition(350,0);spriteAgain.setPosition(350,-100);
           hptexture=new Texture(Gdx.files.internal("sprite/hpbar.png"));
-        ammostatus=new BitmapFont(Gdx.files.internal("font.fnt"),Gdx.files.internal("font.png"),false);
+        title=livesfont=ammostatus=new BitmapFont(Gdx.files.internal("font.fnt"),Gdx.files.internal("font.png"),false);
     }
     @Override
     public void render() {
@@ -110,11 +112,11 @@ public class ShootingAdventure extends ApplicationAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         batch.setProjectionMatrix(camera.combined);
         batch.begin();
-
+        title.draw(batch,"Shooting Adventure",350,350);
         spriteStart.draw(batch);
         batch.end();
         camera.position.x=400;camera.position.y=240;camera.update();
-        clickStart.x=350;clickStart.y=250;
+        clickStart.x=350;clickStart.y=0;
         if(Gdx.input.isTouched()){gamestate=2;Brick.level=level="testlevel";changelevel=true;
         }
     }
@@ -142,12 +144,30 @@ public class ShootingAdventure extends ApplicationAdapter {
             ammostatus.draw(batch,(int)player1.weaponlist.ammo[player1.weaponlist.weaponindex]+"/"+
                     (int)player1.weaponlist.maxammo[player1.weaponlist.weaponindex],player1.full.x-530,player1.full.y+150);
         }
+        livesfont.draw(batch,"P: "+lives,player1.full.x-530,player1.full.y+90);
         hpbar.draw(batch);
         batch.end();
 
         //updates
         player1.update(0.04);
         hpbar=new Sprite(hptexture,0,3*(player1.maxHP-player1.HP),7,3*player1.HP);
+        if(player1.HP<=0){dead=true;}
+        if(dead){lives-=1;
+            if(lives>0){
+            SoundManager.die.play(0.6f);
+            if (level.equals("fire")) {
+                player1.setPosition(328, 3016);
+            }
+            else if (level.equals("leaf")) {
+                player1.setPosition(640,2176);
+            }
+            else if (level.equals("poision")) {
+                player1.setPosition(512,1280);
+            }
+
+            player1.HP=player1.maxHP;dead=false;}
+            else{gamestate=4;}
+        }
         switch(player1.weaponlist.weaponindex) {
             case 0:
                 iconstatus=new Sprite(icontexture,46,38,20,20);break;
@@ -192,7 +212,7 @@ if(bill.getClass()!=EnemyBullet.class){
             }
 if(bill.getClass()==EnemyBullet.class) {
     if(bill.getHitBox().overlaps(player1.getHitBox())){
-        if(player1.flinchtimer==0){player1.HP-=(player1.HP>=3)?3:player1.HP;player1.flinchtimer=0.8;}
+        if(player1.flinchtimer==0){player1.HP-=(player1.HP>=3)?3:player1.HP;player1.flinchtimer=1.5;SoundManager.hurt.play(0.4f);}
         deadbulletlist.add(bill);
     }
 }
@@ -212,7 +232,7 @@ if(bill.getClass()==EnemyBullet.class) {
                             break;
                         case DIE:
                             if (i.getClass() == Spikes.class) {
-                           player1.HP=0;player1.setPosition(100, 466);
+                           player1.HP=0;
                             }
                             break;
                         case DOOR:
@@ -230,6 +250,7 @@ if(bill.getClass()==EnemyBullet.class) {
                         case BOSS:
                             if(level=="fire"){player1.setPosition(4352,640);}
                             else if(level=="leaf"){player1.setPosition(6144,512);}
+                            else if (level.equals("poision")) {player1.setPosition(1200,300);}
                             player1.playerstate=AIR;
                             break;
                     }
@@ -241,7 +262,7 @@ if(bill.getClass()==EnemyBullet.class) {
                             break;
                         case DIE:
                             if (i.getClass() == Spikes.class) {
-                                player1.HP=0;player1.setPosition(100, 466);
+                                player1.HP=0;
                             }
                             break;
                         case DOOR:
@@ -259,6 +280,7 @@ if(bill.getClass()==EnemyBullet.class) {
                         case BOSS:
                             if(level=="fire"){player1.setPosition(4352,640);}
                             else if(level=="leaf"){player1.setPosition(6144,512);}
+                            else if (level.equals("poision")) {player1.setPosition(1200,300);}
                             player1.playerstate=AIR;
                             break;
                     }
@@ -270,7 +292,7 @@ if(bill.getClass()==EnemyBullet.class) {
                             break;
                         case DIE:
                             if (i.getClass() == Spikes.class) {
-                                player1.HP=0;player1.setPosition(100, 466);
+                                player1.HP=0;
                             }
                             break;
                         case DOOR:
@@ -287,7 +309,8 @@ if(bill.getClass()==EnemyBullet.class) {
                             break;
                         case BOSS:
                             if(level=="fire"){player1.setPosition(4352,640);}
-                            else if(level=="leaf"){player1.setPosition(6144,512);}
+                            else if(level=="leaf"){player1.setPosition(6144,512);
+                            }else if (level.equals("poision")) {player1.setPosition(1200,300);}
                             player1.playerstate=AIR;
                             break;
                     }
@@ -300,7 +323,6 @@ if(bill.getClass()==EnemyBullet.class) {
                             break;
                         case DIE:
                             if (i.getClass() == Spikes.class) {
-                                player1.setPosition(0, -600);
                             }
                             break;
                         case DOOR:
@@ -318,6 +340,7 @@ if(bill.getClass()==EnemyBullet.class) {
                         case BOSS:
                             if(level=="fire"){player1.setPosition(4352,640);}
                             else if(level=="leaf"){player1.setPosition(6144,512);}
+                            else if (level.equals("poision")) {player1.setPosition(1200,300);}
                             player1.playerstate=AIR;
                             break;
                     }
@@ -360,7 +383,7 @@ if(bill.getClass()==EnemyBullet.class) {
                 }
                 if (foe.getClass() != Woodblock.class) {
 if(player1.getHitBox().overlaps(foe.getHitBox())&&player1.flinchtimer==0) {
-player1.HP-=(player1.HP>=4)?4:player1.HP;player1.flinchtimer=1.5;
+player1.HP-=(player1.HP>=4)?4:player1.HP;player1.flinchtimer=1.5;SoundManager.hurt.play(0.4f);
 }
                 }
                 else{
@@ -399,20 +422,11 @@ player1.HP-=(player1.HP>=4)?4:player1.HP;player1.flinchtimer=1.5;
             player1.moveRight(0.04f);
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.X) && player1.playerstate != AIR) {
-            player1.jump();
-        }
-        if (Gdx.input.isKeyJustPressed(Input.Keys.Z)) {
-            for (int j = 0; j <33; j++) {
-                if(!(player1.playerstate==HIT_LEFT||player1.playerstate==HIT_RIGHT)){
-                    player1.dash(0.04f);}
-                else{break;}
-            }
+            player1.jump();SoundManager.jump.play(0.4f);
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.A)) {player1.weaponlist.changeweaponleft();
-           System.out.println(player1.weaponlist.weaponindex+"/"+player1.weaponlist.arsenal);
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.S)) {player1.weaponlist.changeweaponright();
-           System.out.println(player1.weaponlist.weaponindex+"/"+player1.weaponlist.arsenal);
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.C)
                 &&(!player1.weaponlist.isuseammo[player1.weaponlist.weaponindex]
@@ -429,6 +443,7 @@ player1.HP-=(player1.HP>=4)?4:player1.HP;player1.flinchtimer=1.5;
                     Bullet xbuster = new Bullet(player1.full.x, player1.full.y + 57, Math.toRadians(180), true);
                     bulletlist.add(xbuster);
                 }
+                SoundManager.basicbullet.play(0.4f);
                 break;
                 case 1:
                     if (player1.direction == 1) {
@@ -436,13 +451,13 @@ player1.HP-=(player1.HP>=4)?4:player1.HP;player1.flinchtimer=1.5;
                     } else {
                         Heatvision hv = new Heatvision(player1.full.x-900, player1.full.y +82,Math.toRadians(180));
                         bulletlist.add(hv);
-                    }
+                    }SoundManager.hv.play(0.47f);
                     break;
             }
         }
         if (Gdx.input.isKeyJustPressed(Input.Keys.B)) {gamestate=1;level="testlevel";player1.HP=player1.maxHP;
-            list.clear();deadbulletlist.clear();bulletlist.clear();enemies.clear();
-            player1.setPosition(400, 300); player1.velocityY=0;
+            list.clear();deadbulletlist.clear();bulletlist.clear();enemies.clear();dead=false;
+            player1.setPosition(1280,768); player1.velocityY=0;lives=3;
         }//test recall
 
     }
@@ -504,6 +519,10 @@ player1.HP-=(player1.HP>=4)?4:player1.HP;player1.flinchtimer=1.5;
            else if (level.equals("leaf")) {
                 player1.setPosition(640,2176);
             }
+            else if (level.equals("poision")) {
+                player1.setPosition(512,1280);
+            }
+
         }
     }
 
@@ -533,15 +552,30 @@ player1.HP-=(player1.HP>=4)?4:player1.HP;player1.flinchtimer=1.5;
 
 
     }
-    public void gameover(){}
+    public void gameover(){
+        Gdx.gl.glClearColor(1, 1, 1, 1);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        batch.setProjectionMatrix(camera.combined);
+        batch.begin();
+        title.draw(batch,"R.R O.O :-@      GAME OVER!!!    R.R O.O :-@",350,350);
+        spriteAgain.draw(batch);
+        batch.end();
+        camera.position.x=400;camera.position.y=240;camera.update();
+        clickAgain.x=350;clickAgain.y=-100;
+        if(Gdx.input.isTouched()){gamestate=1;level="testlevel";player1.HP=player1.maxHP;
+            list.clear();deadbulletlist.clear();bulletlist.clear();enemies.clear();dead=false;
+            player1.setPosition(1280,768); player1.velocityY=0;lives=3;loadlevel("testlevel");
+    }
+    }
     @Override
     public void dispose () {
         batch.dispose();
         texture.dispose();
+        SoundManager.dispose();
     }
-    public void delay_sec(int s)
+    public void delay_sec(double s)
     {
-        try {Thread.sleep(1000*s);}
+        try {Thread.sleep((int)(1000*s));}
         catch (InterruptedException e){
             e.printStackTrace();
         }

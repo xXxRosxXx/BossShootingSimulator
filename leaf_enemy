@@ -3,13 +3,9 @@ turret 6918 1880 4
 turret 7308 1880 4
 turret 7698 1880 4
 turret 8088 1880 4
-turret 6365 2304 3
-turret 2432 2048 2
-turret 2832 2048 2
-turret 3232 2048 2
-turret 3632 2048 2
-turret 4032 2048 2
-turret 4432 2048 2
+turret 6365 2284 3
+turret 6634 2284 1
+
 
 mudboulder 7355 1690 1130
 mudboulder 7305 1690 1080

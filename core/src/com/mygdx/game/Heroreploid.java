@@ -18,7 +18,7 @@ public class Heroreploid extends GameObject {
     WeaponManager weaponlist;
     public Texture texture;
     public Playerstate playerstate;
-    public int lives,direction,HP,maxHP;
+    public int direction,HP,maxHP;
     public double velocityX,velocityY;
     public boolean flinching;
     public double flinchtimer;
@@ -31,16 +31,15 @@ public class Heroreploid extends GameObject {
         groundpointer=leftpointer=rightpointer=null;
         full=new Rectangle(0,0,44,109);
         bottom=new Rectangle(6,0,32,8);
-        left=new Rectangle(0,8,8,101);
-        right=new Rectangle(36,8,8,101);
-        top=new Rectangle(8,101,28,8);
+        left=new Rectangle(0,8,8,92);
+        right=new Rectangle(36,8,8,92);
+        top=new Rectangle(9,101,26,8);
 
         texture=new Texture(Gdx.files.internal("sprite/heroreploid.png"));
         sprite=new Sprite(texture,0,0,44,109);
         this.setPosition(55,288);
     }
     public Playerstate hits(Rectangle r){
-
         if(top.overlaps(r)){
             return HIT_CEILING;
         }
@@ -51,6 +50,8 @@ public class Heroreploid extends GameObject {
             rightpointer=r;return HIT_RIGHT;}
         if(left.overlaps(r)){
             leftpointer=r;return HIT_LEFT;}
+
+
 
         return AIR;
     }
@@ -73,10 +74,10 @@ public class Heroreploid extends GameObject {
 
     }
     public void update(double delta){
-        if(flinchtimer==0){flinching=false;}
+        if(flinchtimer==0){flinching=false;}if(full.y<-555)HP=0;
         else{flinching=true;flinchtimer=(flinchtimer>=delta)?flinchtimer-delta:0;}
         velocityY-=30*delta;full.y+=velocityY;
-        sprite.setPosition(full.x,full.y);
+        sprite.setPosition(full.x,full.y);if(velocityY==0){playerstate=AIR;}
         if(playerstate==AIR||velocityY<0){setPosition(sprite.getX(),sprite.getY());}
     }
 
@@ -125,23 +126,13 @@ public class Heroreploid extends GameObject {
     public Playerstate hitAction(Playerstate side) {
         return GROUND;
     }
-
-    public void dash(float delta){
-
-        isDashing=true;
-        if(direction==0){setPosition(full.x-(velocityX*4*delta),full.y);delay_sec(0.033);}
-        else{setPosition(full.x+(velocityX*4*delta),full.y);delay_sec(0.033);}
-        isDashing=false;
-
-    }
     public void draw(SpriteBatch batch){sprite.draw(batch);}
     public Rectangle getHitBox(){
         return full;
     }
     public void delay_sec(double s)
     {
-        long s2=(int)(1000*s);
-        try {Thread.sleep(s2);}
+        try {Thread.sleep((int)(1000*s));}
         catch (InterruptedException e){
             e.printStackTrace();
         }
